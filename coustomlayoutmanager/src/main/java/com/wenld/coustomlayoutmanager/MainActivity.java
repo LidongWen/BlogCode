@@ -1,8 +1,9 @@
 package com.wenld.coustomlayoutmanager;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(view.getContext(), o, Toast.LENGTH_SHORT).show();
                     }
                 });
+                Log.e("convert_____",""+i);
             }
         };
         rlv.setAdapter(adapter);

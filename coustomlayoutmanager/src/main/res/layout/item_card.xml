@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         app:bgColor="#FF00FF00"
-        app:size="100dp" />
+        app:size="90dp" />
 
     <TextView
         android:id="@+id/text"

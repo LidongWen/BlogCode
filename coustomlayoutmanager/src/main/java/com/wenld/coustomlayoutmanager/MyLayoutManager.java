@@ -7,8 +7,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.List;
-
 /**
  * Created by wenld on 2017/8/6.
  */
@@ -36,11 +34,7 @@ public class MyLayoutManager extends LayoutManager {
 
 
         //回收所有的view
-        if (state.getItemCount() == 0) {
-            removeAndRecycleAllViews(recycler);
-            return;
-        }
-
+        removeAndRecycleAllViews(recycler);
         // 计算各种数据： 可用空间 当前下标 开始坐标
         layoutState.initAndClear();
         layoutState.mItemDirection = layoutState.downDirection;
@@ -50,10 +44,10 @@ public class MyLayoutManager extends LayoutManager {
 
         if (state.getItemCount() > 0) {
             // 布局view  回收view
-            fill(layoutState, recycler, state);
+            int consumed = fill(layoutState, recycler, state);
+            Log.e("消耗的高度：", "" + consumed);
         }
     }
-
 
     /**
      * 填充view  回收view
@@ -64,21 +58,15 @@ public class MyLayoutManager extends LayoutManager {
      * @return 实际消耗的偏移量 / 实际移动的距离
      */
     private int fill(LayoutState layoutState, RecyclerView.Recycler recycler, RecyclerView.State state) {
-        //
-        int mConsumed = 0;
 
         boolean isNeedAdd = true;
-
-
         final int count = getChildCount();
         //  根据方向  指定的view;
 
         if (count > 0) {
-            isNeedAdd=false;
+            isNeedAdd = false;
             if (layoutState.mItemDirection == layoutState.downDirection) {
 //                遍历 chilren 得到坐标 与偏移量 做对比 判断是否执行  recylerchildren
-
-
                 //得到最后一个item 在屏幕外占的高度
                 int lastItemOutHeight = getChildAt(count - 1).getBottom() - getHeight();
                 View childView;
@@ -92,7 +80,6 @@ public class MyLayoutManager extends LayoutManager {
                             for (int j = 0; j <= i; j++) {
                                 removeAndRecycleViewAt(j, recycler);
                             }
-                            mConsumed += layoutState.mAvailable;
                             break;
                         }
                     }
@@ -117,10 +104,7 @@ public class MyLayoutManager extends LayoutManager {
                             for (int j = count - 1; j >= i; j--) {
                                 removeAndRecycleViewAt(j, recycler);
                             }
-                            mConsumed += layoutState.mAvailable;
                             break;
-                        } else {
-
                         }
                     }
                 }
@@ -133,96 +117,39 @@ public class MyLayoutManager extends LayoutManager {
 
         int mAvailable = layoutState.mAvailable;
         while (layoutState.hasMore(state) && mAvailable > 0 && isNeedAdd) {
-            int mItemConsumed = 0;
+            int mItemConsumed;
+            View child = null;
             // 自上而下填充
             if (layoutState.mItemDirection == layoutState.downDirection) {
                 //      分单双行
+
                 //      双行
                 if (layoutState.mCurrentPosition == 0
                         || (layoutState.mCurrentPosition % (2 * rowCount - 1) < rowCount)) {
 
                     //          下标为0的view
                     if (layoutState.mCurrentPosition == 0) {
-                        Log.e("  下标为0的view ",""+layoutState.mCurrentPosition);
-                        View view = layoutState.next(recycler);
-                        addView(view);
-                        measureChildWithMargins(view, 0, 0);
-                        mItemConsumed = view.getMeasuredHeight();
-                        //布局view
-                        int left, top, right, bottom;
-                        left = layoutState.startPoint.x;
-                        top = layoutState.startPoint.y;
-                        right = left + view.getMeasuredWidth();
-                        bottom = top + view.getMeasuredHeight();
-                        layoutDecoratedWithMargins(view, left, top, right, bottom);
-
+                        child = layoutCommonChild(layoutState, recycler, layoutState.startPoint.x, layoutState.startPoint.y);
                     } else if (layoutState.mCurrentPosition % (2 * rowCount - 1) == 0) {   //每行的表头 第一个view  布局
-                        Log.e("  双行 每行的表头 ",""+layoutState.mCurrentPosition);
-                        //   坐标是与上一个view挂钩的;
+                        //   双行 每行的表头
                         View lastView = getChildAt(getChildCount() - 1);
-                        View view = layoutState.next(recycler);
-                        addView(view);
-                        measureChildWithMargins(view, 0, 0);
-
-                        mItemConsumed =  view.getMeasuredHeight()/2;
-
-                        int left, top, right, bottom;
-                        top = (int) lastView.getBottom()- mItemConsumed;
-                        left = getPaddingLeft();
-                        right = left + view.getMeasuredWidth();
-                        bottom = top + view.getMeasuredHeight();
-
-                        layoutDecoratedWithMargins(view, left, top, right, bottom);
-
+                        child = layoutCommonChild(layoutState, recycler, lastView.getBottom() - lastView.getMeasuredHeight() / 2, getPaddingLeft());
                     } else {
-                        Log.e("  双行 其他的view ",""+layoutState.mCurrentPosition);
                         //          其他的view
                         View lastView = getChildAt(getChildCount() - 1);
-                        View view = layoutState.next(recycler);
-                        addView(view);
-                        measureChildWithMargins(view, 0, 0);
-                        mItemConsumed = 0;
-                        int left, top, right, bottom;
-                        top = (int) lastView.getY();
-                        left = lastView.getRight();
-                        right = left + view.getMeasuredWidth();
-                        bottom = top + view.getMeasuredHeight();
-                        layoutDecoratedWithMargins(view, left, top, right, bottom);
+                        child = layoutCommonChild(layoutState, recycler, (int) lastView.getY(), lastView.getRight());
                     }
-
-
                 } else {
                     //      单行
-                    if (layoutState.mCurrentPosition % (rowCount) == 0){
-                        Log.e("  单行 行头view  ",""+layoutState.mCurrentPosition);
-                        //          行头view   该行的第一个view
+                    if (layoutState.mCurrentPosition % (2 * rowCount - 1) == rowCount) {
                         View lastView = getChildAt(getChildCount() - 1);
-                        View view = layoutState.next(recycler);
-                        addView(view);
-                        measureChildWithMargins(view, 0, 0);
-                        mItemConsumed =  view.getMeasuredHeight()/2;
-                        int left, top, right, bottom;
-                        top = (int) lastView.getBottom()- mItemConsumed;
-                        left = mItemConsumed;
-                        right = left + view.getMeasuredWidth();
-                        bottom = top + view.getMeasuredHeight();
-                        layoutDecoratedWithMargins(view, left, top, right, bottom);
-                    }else{
-                        Log.e("  单行  其他的view  ",""+layoutState.mCurrentPosition);
+                        child = layoutCommonChild(layoutState, recycler,
+                                lastView.getBottom() - lastView.getMeasuredHeight() / 2, lastView.getMeasuredWidth() / 2);
+                    } else {
+                        View lastView = getChildAt(getChildCount() - 1);
                         //          其他的view
-                        View lastView = getChildAt(getChildCount() - 1);
-                        View view = layoutState.next(recycler);
-                        addView(view);
-                        measureChildWithMargins(view, 0, 0);
-                        mItemConsumed = 0;
-                        int left, top, right, bottom;
-                        top = (int) lastView.getY();
-                        left = lastView.getRight();
-                        right = left + view.getMeasuredWidth();
-                        bottom = top + view.getMeasuredHeight();
-                        layoutDecoratedWithMargins(view, left, top, right, bottom);
+                        child = layoutCommonChild(layoutState, recycler, (int) lastView.getY(), lastView.getRight());
                     }
-
                 }
             } else {
                 // 自下而上填充
@@ -230,11 +157,59 @@ public class MyLayoutManager extends LayoutManager {
                 //      双行
                 //      单行
             }
+            mItemConsumed = calculationConsumed(state, child);
 
+            mAvailable -= mItemConsumed;
+            layoutState.mOffset += mItemConsumed;
         }
 
         //计算消耗的偏移量
-        return 0;
+        return layoutState.mOffset;
+    }
+
+    private View layoutCommonChild(LayoutState layoutState, RecyclerView.Recycler recycler, int top, int left) {
+
+        View view = layoutState.next(recycler);
+        addView(view);
+        measureChildWithMargins(view, 0, 0);
+        int right, bottom;
+
+        right = left + view.getMeasuredWidth();
+        bottom = top + view.getMeasuredHeight();
+        layoutDecoratedWithMargins(view, left, top, right, bottom);
+        return view;
+    }
+
+    /**
+     * 计算消耗高度
+     *
+     * @param state
+     * @param view
+     * @return
+     */
+    private int calculationConsumed(RecyclerView.State state, View view) {
+        int mItemConsumed = 0;
+        //没有更多item的情况下
+        int postion = getPosition(view);
+        if (!layoutState.hasMore(state)) {
+            //第一行
+            if (postion < rowCount) {
+                mItemConsumed = view.getMeasuredHeight();
+            } else {
+                //其它行
+                mItemConsumed = view.getMeasuredHeight() / 2;
+            }
+        } //行末的情况下
+        else if (postion != 0 && (postion % (rowCount - 1) == 0 || postion % (2 * rowCount - 1) == 0)) {
+            //第一行
+            if (postion <= rowCount) {
+                mItemConsumed = view.getMeasuredHeight();
+            } else {    //其它行
+                mItemConsumed = view.getMeasuredHeight() / 2;
+            }
+        }
+        Log.e("消耗的高度：", "" + mItemConsumed + "   postion:" + postion);
+        return mItemConsumed;
     }
 
     @Override
@@ -245,11 +220,13 @@ public class MyLayoutManager extends LayoutManager {
     @Override
     public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
         // 根据偏移量 计算开始布局的坐标点 各种数据
+        layoutState.initAndClear();
         // 布局view  回收view
         fill(layoutState, recycler, state);
         // 计算实际消耗的偏移量
 
         // 平移children
+//        offsetChildrenVertical
         //返回实际消耗的偏移量
         return 0;
     }
@@ -283,6 +260,7 @@ public class MyLayoutManager extends LayoutManager {
             startPoint.set(0, 0);
             mAvailable = 0;
             mOffset = 0;
+            mCurrentPosition = 0;
             mItemDirection = downDirection;
         }
 
