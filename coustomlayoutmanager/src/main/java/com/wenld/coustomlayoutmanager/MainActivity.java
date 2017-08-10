@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.wenld.multitypeadapter.CommonAdapter;
 import com.wenld.multitypeadapter.base.ViewHolder;
 
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     RecyclerView rlv;
-    MyLayoutManager layoutManager = new MyLayoutManager();
+    MyLayoutManager layoutManager = new MyLayoutManager(4);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +50,10 @@ public class MainActivity extends AppCompatActivity {
         };
         rlv.setAdapter(adapter);
         List<String> list=new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 100; i++) {
             list.add("item_"+i);
         }
         adapter.setItems(list);
     }
+
 }

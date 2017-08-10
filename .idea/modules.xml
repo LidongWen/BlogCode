@@ -3,10 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/BlogCode.iml" filepath="$PROJECT_DIR$/BlogCode.iml" />
-      <module fileurl="file://$PROJECT_DIR$/BlogCode.iml" filepath="$PROJECT_DIR$/BlogCode.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/coustomlayoutmanager/coustomlayoutmanager.iml" filepath="$PROJECT_DIR$/coustomlayoutmanager/coustomlayoutmanager.iml" />
       <module fileurl="file://$PROJECT_DIR$/coustomlayoutmanager/coustomlayoutmanager.iml" filepath="$PROJECT_DIR$/coustomlayoutmanager/coustomlayoutmanager.iml" />
     </modules>
   </component>
