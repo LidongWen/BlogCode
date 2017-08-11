@@ -15,6 +15,8 @@ public class MyLayoutManager extends LayoutManager {
     LayoutState layoutState = new LayoutState();
 
     int rowCount = 4;     //双行的数量
+    int singleRowCount = 2;  //单行数量
+    int doubleRowCount = 7;//两行数量
     int halfLineHeight = 0;     //半行高
 
     public MyLayoutManager() {
@@ -23,6 +25,8 @@ public class MyLayoutManager extends LayoutManager {
 
     public MyLayoutManager(int rowCount) {
         this.rowCount = rowCount;
+        singleRowCount = rowCount - 1;
+        doubleRowCount = rowCount + singleRowCount;
     }
 
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
@@ -67,8 +71,8 @@ public class MyLayoutManager extends LayoutManager {
      */
     private int fill(LayoutState layoutState, RecyclerView.Recycler recycler, RecyclerView.State state) {
 
-        long start = System.nanoTime();
-        Log.e("   recycler_fill ", "  start " + layoutState.mCurrentPosition +"  sroller: "+layoutState.mAvailable);
+        long start = System.currentTimeMillis();
+        Log.e("   recycler_fill ", "  start postion: " + layoutState.mCurrentPosition + "  sroller: " + layoutState.mAvailable);
         boolean isNeedAdd = true;
         final int count = getChildCount();
         //  根据方向  指定的view;
@@ -79,19 +83,21 @@ public class MyLayoutManager extends LayoutManager {
 //                遍历 chilren 得到坐标 与偏移量 做对比 判断是否执行  recylerchildren
                 //得到最后一个item 在屏幕外占的高度
                 int lastItemOutHeight = getChildAt(count - 1).getBottom() - getHeight();
-                View childView;
-                for (int i = count - 2; i >= 0; i--) {
-                    childView = getChildAt(i);
-                    if (childView.getBottom() < lastItemOutHeight) {
-                        //判断 item 的高度如果减去偏移量是否 在屏幕外
-                        if (childView.getBottom() - layoutState.mAvailable < getPaddingTop()) {
-                            //
-                            for (int j = i; j >= 0; j--) {
-                                Log.e("上滑回收", "  " + getPosition(getChildAt(j)) + "     " + j);
-                                removeAndRecycleViewAt(j, recycler);
-                            }
-                            break;
+                if(lastItemOutHeight!=0) {
+                    View childView;
+                    for (int i = count - 2; i >= 0; i--) {
+                        childView = getChildAt(i);
+                        if (childView.getBottom() < lastItemOutHeight) {
+                            //判断 item 的高度如果减去偏移量是否 在屏幕外
+                            if (childView.getBottom() - layoutState.mAvailable < getPaddingTop()) {
+                                //
+                                for (int j = i; j >= 0; j--) {
+                                    Log.e("上滑回收", "  " + getPosition(getChildAt(j)) + "     " + j);
+                                    removeAndRecycleViewAt(j, recycler);
+                                }
+                                break;
 
+                            }
                         }
                     }
                 }
@@ -104,19 +110,21 @@ public class MyLayoutManager extends LayoutManager {
 
                 //得到最后一个item 在屏幕外占的高度
                 int lastItemOutHeight = Math.abs(getChildAt(0).getTop());
-                View childView;
-                for (int i = 0; i < count - 1; i++) {
-                    // 判断  得到最后一个item
-                    if (layoutState.mAvailable < lastItemOutHeight) {
-                        childView = getChildAt(i);
-                        //判断 item 的高度如果减去偏移量是否 在屏幕外
-                        if (childView.getTop() + layoutState.mAvailable > getHeight() - getPaddingBottom()) {
-                            //
-                            for (int j = count - 1; j >= i; j--) {
-                                Log.e("下滑回收", "  " + getPosition(getChildAt(j)) + "     " + j);
-                                removeAndRecycleViewAt(j, recycler);
+                if(lastItemOutHeight!=0) {
+                    View childView;
+                    for (int i = 0; i < count - 1; i++) {
+                        // 判断  得到最后一个item
+                        if (layoutState.mAvailable < lastItemOutHeight) {
+                            childView = getChildAt(i);
+                            //判断 item 的高度如果减去偏移量是否 在屏幕外
+                            if (childView.getTop() + layoutState.mAvailable > getHeight() - getPaddingBottom()) {
+                                //
+                                for (int j = count - 1; j >= i; j--) {
+                                    Log.e("下滑回收", "  " + getPosition(getChildAt(j)) + "     " + j);
+                                    removeAndRecycleViewAt(j, recycler);
+                                }
+                                break;
                             }
-                            break;
                         }
                     }
                 }
@@ -126,7 +134,7 @@ public class MyLayoutManager extends LayoutManager {
                 layoutState.mOffset = Math.min(lastItemOutHeight, layoutState.mAvailable);
             }
         }
-        Log.e("   recycler_fill", "   回收耗时 " + (System.nanoTime() - start) + "   " + layoutState.mCurrentPosition);
+        Log.e("   recycler_fill", "   回收耗时 " + (System.currentTimeMillis() - start) + "   " + layoutState.mCurrentPosition);
 
         int mAvailable = layoutState.mAvailable - layoutState.mOffset;
 
@@ -139,13 +147,13 @@ public class MyLayoutManager extends LayoutManager {
 
                 //      双行
                 if (layoutState.mCurrentPosition == 0
-                        || (layoutState.mCurrentPosition % (2 * rowCount - 1) < rowCount)) {
+                        || (layoutState.mCurrentPosition % (doubleRowCount) < rowCount)) {
 
                     //          下标为0的view
                     if (layoutState.mCurrentPosition == 0) {
                         child = layoutCommonChild(layoutState, recycler, layoutState.startPoint.x, layoutState.startPoint.y);
                         halfLineHeight = child.getMeasuredHeight() / 2;
-                    } else if (layoutState.mCurrentPosition % (2 * rowCount - 1) == 0) {   //每行的表头 第一个view  布局
+                    } else if (layoutState.mCurrentPosition % (doubleRowCount) == 0) {   //每行的表头 第一个view  布局
                         //   双行 每行的表头
                         View lastView = getChildAt(getChildCount() - 1);
                         child = layoutCommonChild(layoutState, recycler, lastView.getBottom() - halfLineHeight, getPaddingLeft());
@@ -156,7 +164,7 @@ public class MyLayoutManager extends LayoutManager {
                     }
                 } else {
                     //      单行
-                    if (layoutState.mCurrentPosition % (2 * rowCount - 1) == rowCount) {
+                    if (layoutState.mCurrentPosition % (doubleRowCount) == rowCount) {
                         View lastView = getChildAt(getChildCount() - 1);
                         child = layoutCommonChild(layoutState, recycler,
                                 lastView.getBottom() - halfLineHeight, lastView.getMeasuredWidth() / 2);
@@ -170,12 +178,12 @@ public class MyLayoutManager extends LayoutManager {
                 // 自下而上填充
                 //      双行
                 if (layoutState.mCurrentPosition == 0
-                        || (layoutState.mCurrentPosition % (2 * rowCount - 1) < rowCount)) {
+                        || (layoutState.mCurrentPosition % (doubleRowCount) < rowCount)) {
                     //表尾
-                    if (layoutState.mCurrentPosition % (2 * rowCount - 1) == rowCount - 1) {
+                    if (layoutState.mCurrentPosition % (doubleRowCount) == singleRowCount) {
                         View lastView = getChildAt(0);
                         child = layoutCommonChild(layoutState, recycler, lastView.getTop() - halfLineHeight,
-                                getPaddingLeft() + (rowCount - 1) * lastView.getMeasuredWidth());
+                                getPaddingLeft() + (singleRowCount) * lastView.getMeasuredWidth());
                     } else {
                         //其他
                         View lastView = getChildAt(0);
@@ -183,7 +191,7 @@ public class MyLayoutManager extends LayoutManager {
                     }
                 } else {
                     //表尾
-                    if (layoutState.mCurrentPosition % (2 * rowCount - 1) == 2 * rowCount - 2) {
+                    if (layoutState.mCurrentPosition % (doubleRowCount) == 2 * rowCount - 2) {
                         View lastView = getChildAt(0);
                         child = layoutCommonChild(layoutState, recycler, lastView.getTop() - halfLineHeight,
                                 (int) ((rowCount - 1.5) * lastView.getMeasuredWidth()));
@@ -199,34 +207,37 @@ public class MyLayoutManager extends LayoutManager {
             mAvailable -= mItemConsumed;
             layoutState.mOffset += mItemConsumed;
         }
-        Log.e("   recycler_fill", "   end " + (System.nanoTime() - start) + "   " + layoutState.mCurrentPosition);
+        Log.e(" recycler_fill ", "  end           " + (System.currentTimeMillis() - start) + "   " + layoutState.mCurrentPosition);
         //计算消耗的偏移量
         return Math.min(layoutState.mOffset, layoutState.mAvailable);
     }
 
     private View layoutCommonChild(LayoutState layoutState, RecyclerView.Recycler recycler, int top, int left) {
-        long start = System.nanoTime();
+        final long start = System.currentTimeMillis();
 
         View view = layoutState.next(recycler);
-        Log.e(" layoutCommonChild ", "  获取耗时      " + (System.nanoTime() - start) + "   " + layoutState.mCurrentPosition);
-        start = System.nanoTime();
+        Log.e(" layoutCommonChild ", "  获取耗时      " + (System.currentTimeMillis() - start) + "   " + layoutState.mCurrentPosition);
+        final long start2 = System.currentTimeMillis();
         if (layoutState.mItemDirection == layoutState.downDirection) {
             addView(view);
         } else {
             addView(view, 0);
         }
-        Log.e(" layoutCommonChild ", "  添加布局耗时  " + (System.nanoTime() - start) + "   " + layoutState.mCurrentPosition);
-        start = System.nanoTime();
+        final long start3 = System.currentTimeMillis();
+        Log.e(" layoutCommonChild ", "  添加布局耗时  " + (start3 - start2) + "   " + layoutState.mCurrentPosition);
+
         measureChildWithMargins(view, 0, 0);
         int right, bottom;
+        final long start4 = System.currentTimeMillis();
+        Log.e(" layoutCommonChild ", "  测量耗时      " + (start4 - start3) + "   " + layoutState.mCurrentPosition);
 
-        Log.e(" layoutCommonChild ", "  测量耗时      " + (System.nanoTime() - start) + "   " + layoutState.mCurrentPosition);
-        start = System.nanoTime();
 
         right = left + view.getMeasuredWidth();
         bottom = top + view.getMeasuredHeight();
         layoutDecoratedWithMargins(view, left, top, right, bottom);
-        Log.e(" layoutCommonChild ", "  end          " + (System.nanoTime() - start) + "   " + layoutState.mCurrentPosition);
+        final long start5 = System.currentTimeMillis();
+        Log.e(" layoutCommonChild ", "  布局耗时      " + (start5 - start4) + "   " + layoutState.mCurrentPosition);
+        Log.e(" layoutCommonChild ", "  end           " + (System.currentTimeMillis() - start) + "   " + layoutState.mCurrentPosition);
         return view;
     }
 
@@ -238,11 +249,11 @@ public class MyLayoutManager extends LayoutManager {
      * @return
      */
     private int calculationConsumed(RecyclerView.State state, View view) {
+        final long start = System.currentTimeMillis();
         int mItemConsumed = 0;
         //没有更多item的情况下
         int postion = getPosition(view);
         if (layoutState.mItemDirection == LayoutState.downDirection) {
-
             if (!layoutState.hasMore(state)) {
                 //第一行
                 if (postion < rowCount) {
@@ -252,7 +263,7 @@ public class MyLayoutManager extends LayoutManager {
                     mItemConsumed = halfLineHeight;
                 }
             } //行末的情况下
-            else if (postion != 0 && (postion % (2 * rowCount - 1) == (rowCount - 1) || postion % (2 * rowCount - 1) == (2 * rowCount - 2))) {
+            else if (postion != 0 && (postion % (doubleRowCount) == (singleRowCount) || postion % (doubleRowCount) == (doubleRowCount - 1))) {
                 //第一行
                 if (postion <= rowCount) {
                     mItemConsumed = view.getMeasuredHeight();
@@ -263,10 +274,11 @@ public class MyLayoutManager extends LayoutManager {
             Log.e("消耗的高度：", "" + mItemConsumed + "   postion:" + postion);
         } else {
             // 表头消耗
-            if (postion % (2 * rowCount - 1) == rowCount || postion % (2 * rowCount - 1) == 0) {
+            if (postion % (doubleRowCount) == rowCount || postion % (doubleRowCount) == 0) {
                 mItemConsumed = halfLineHeight;
             }
         }
+        Log.e(" layoutCommonChild ", "  计算耗时      " + (System.currentTimeMillis() - start) + "   " + layoutState.mCurrentPosition);
         return mItemConsumed;
     }
 
