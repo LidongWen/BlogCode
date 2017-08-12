@@ -16,7 +16,8 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     RecyclerView rlv;
-    MyLayoutManager layoutManager = new MyLayoutManager(3);
+//    MyLayoutManager001 layoutManager = new MyLayoutManager001(4);
+    MyLayoutManager layoutManager = new MyLayoutManager(4);
 //    GridLayoutManager layoutManager = new GridLayoutManager(this, 8);
 
     @Override
@@ -36,16 +37,12 @@ public class MainActivity extends AppCompatActivity {
                 return COLORS[new Random().nextInt(COLORS.length)];
             }
 
-            int randomColor(int pos) {
-                return COLORS[pos%COLORS.length ];
-            }
-
             @Override
             protected void convert(ViewHolder holder, final String o, int i) {
                 long start = System.currentTimeMillis();
                 holder.setText(R.id.text, o);
                 CardItemView cardItemView = holder.getView(R.id.item);
-                cardItemView.setCardColor(randomColor(i));
+                cardItemView.setCardColor(randomColor());
                 cardItemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

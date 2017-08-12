@@ -289,6 +289,7 @@ public class MyLayoutManager extends LayoutManager {
 
     @Override
     public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler, RecyclerView.State state) {
+        long start = System.currentTimeMillis();
         if (getChildCount() == 0 || dy == 0) {
             return 0;
         }
@@ -311,6 +312,7 @@ public class MyLayoutManager extends LayoutManager {
             // 平移children
             final int scrolled = Math.abs(dy) > consumed ? layoutState.mItemDirection * consumed : dy;
             offsetChildrenVertical(-scrolled);
+            Log.e(" scrollVerticallyBy ", "  end           " + (System.currentTimeMillis() - start) + "   " + layoutState.mCurrentPosition);
             //返回实际消耗的偏移量
             return scrolled;
         }
