@@ -1,1 +1,3 @@
-include ':app', ':coustomlayoutmanager'
+//include ':app'
+//include':coustomlayoutmanager'
+include':junitdemo'

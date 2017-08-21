@@ -8,7 +8,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.0'
-        
+        classpath 'org.greenrobot:greendao-gradle-plugin:3.2.2' // add plugin
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -20,6 +20,7 @@ allprojects {
         google()
         jcenter()
         maven { url "https://www.jitpack.io" }
+        mavenCentral()
     }
 }
 
@@ -32,8 +33,10 @@ project.ext {
     compileSdkVersion = 25
     buildToolsVersion = '25.0.2'
     supportLibraryVersion = '25.1.1'
-//    constraintLayoutVersion = '1.0.0-beta5'
-    constraintLayoutVersion = '1.0.0-alpha7'
+    constraintLayoutVersion = '1.0.0-beta5'
+//    constraintLayoutVersion = '1.0.0-alpha7'
 
     BUTTERKNIFE_VERSION = '8.5.1'
+
+    robolectricVersion = "3.4.2"
 }
