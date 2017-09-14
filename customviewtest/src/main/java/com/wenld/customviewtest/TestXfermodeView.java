@@ -23,97 +23,7 @@ import android.view.View;
  */
 
 public class TestXfermodeView extends View {
-//    Paint paint;
-//    PorterDuff.Mode mode = PorterDuff.Mode.CLEAR;
-//
-//    public TestXfermodeView(Context context) {
-//        this(context, null);
-//    }
-//
-//    public TestXfermodeView(Context context, AttributeSet attrs) {
-//        this(context, attrs, 0);
-//    }
-//
-//    public TestXfermodeView(Context context, AttributeSet attrs, int defStyleAttr) {
-//        super(context, attrs, defStyleAttr);
-//        paint = new Paint();
-//    }
-//
-//    public void transfromXfermode(PorterDuff.Mode mode) {
-//        this.mode = mode;
-//        invalidate();
-//    }
-//
-//    @Override
-//    protected void onDraw(Canvas canvas) {
-//        super.onDraw(canvas);
-//
-//        Bitmap circle = getCircleBitmap();
-//        Bitmap rectangle = getRetangleBitmap();
-//
-////        int sc = canvas.saveLayer(0, 0, 400, 400, null,
-////                Canvas.MATRIX_SAVE_FLAG |
-////                        Canvas.CLIP_SAVE_FLAG |
-////                        Canvas.HAS_ALPHA_LAYER_SAVE_FLAG |
-////                        Canvas.FULL_COLOR_LAYER_SAVE_FLAG |
-////                        Canvas.CLIP_TO_LAYER_SAVE_FLAG);
-//
-//        /**
-//         * 开启硬件离屏缓存
-//         */
-//        setLayerType(LAYER_TYPE_HARDWARE, null);
-//
-//        /**
-//         * 画bitmap的也透明
-//         */
-//        canvas.drawARGB(0, 0, 0, 0);
-////        canvas.drawCircle(100, 100, 100, paint);
-//        canvas.drawBitmap(circle, 0, 0, paint);
-//        paint.setXfermode(new PorterDuffXfermode(mode));
-//        canvas.drawBitmap(rectangle, 100, 100, paint);
-////        Bitmap b= BitmapFactory.decodeResource(getResources(),R.mipmap.ic_launcher);
-////        Rect rect = new Rect(0, 0, 100, 100);
-////        canvas.drawBitmap(b,rect, rect, paint);
-////        canvas.restoreToCount(sc);
-//
-//    }
-//
-//    @NonNull
-//    private Bitmap getRetangleBitmap() {
-//        /**
-//         * bm1 在bitmap上面画正方形
-//         */
-//        Bitmap rectangle = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
-//        Canvas c1 = new Canvas(rectangle);
-//        Paint p1 = new Paint(Paint.ANTI_ALIAS_FLAG);
-//        p1.setColor(getResources().getColor(R.color.colorAccent));
-//        /**
-//         * 设置透明
-//         */
-//        c1.drawARGB(0, 0, 0, 0);
-//        c1.drawRect(0, 0, 200, 200, p1);
-//        return rectangle;
-//    }
-//
-//    @NonNull
-//    private Bitmap getCircleBitmap() {
-//        /**
-//         * bm 在bitmap上面画圆
-//         */
-//        Bitmap circle = Bitmap.createBitmap(200, 200, Bitmap.Config.ARGB_8888);
-//        Canvas c = new Canvas(circle);
-//        /**
-//         * 设置透明
-//         */
-//        c.drawARGB(0, 0, 0, 0);
-//        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-//        p.setColor(getResources().getColor(R.color.colorPrimary));
-//        c.drawCircle(100, 100, 100, p);
-//        return circle;
-//    }
-
-
-
+    private final Paint paint;
     // create a bitmap with a circle, used for the "dst" image
     static Bitmap makeDst(int w, int h) {
         Bitmap bm = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -183,7 +93,7 @@ public class TestXfermodeView extends View {
         super(context, attrs, defStyleAttr);
         mSrcB = makeSrc(W, H);
         mDstB = makeDst(W, H);
-
+        paint = new Paint();
         // make a ckeckerboard pattern
         Bitmap bm = Bitmap.createBitmap(new int[] { 0xFFFFFFFF, 0xFFCCCCCC,
                         0xFFCCCCCC, 0xFFFFFFFF }, 2, 2,
@@ -195,7 +105,6 @@ public class TestXfermodeView extends View {
         m.setScale(6, 6);
         mBG.setLocalMatrix(m);
     }
-
         @Override protected void onDraw(Canvas canvas) {
             canvas.drawColor(Color.WHITE);
 
