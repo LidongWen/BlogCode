@@ -1,3 +1,4 @@
+include ':customviewtest'
 //include ':app'
 //include':coustomlayoutmanager'
-include':junitdemo'
+include ':junitdemo'
