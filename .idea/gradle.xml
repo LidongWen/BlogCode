@@ -8,8 +8,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/customviewtest" />
-            <option value="$PROJECT_DIR$/junitdemo" />
+            <option value="$PROJECT_DIR$/aboutactivity" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
